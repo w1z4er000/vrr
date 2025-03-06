@@ -1,0 +1,295 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- UI Elements (Declared outside CharacterAdded)
+local screenGui
+local mainFrame
+local titleBar
+local speedButton
+local jumpButton
+local espButton
+local fallButton
+local speedTextBox
+local jumpTextBox
+local infoButton  -- New: Info Button
+
+-- Info Panel UI Elements (Declared outside CharacterAdded)
+local infoPanel
+local infoPanelCloseButton
+local infoTextLabel
+
+local isEspEnabled = false
+local isFlying = false
+
+local function createUI()
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = LocalPlayer.PlayerGui
+    screenGui.Name = "MyMenu"
+    screenGui.ResetOnSpawn = false
+
+    mainFrame = Instance.new("Frame")
+    mainFrame.Parent = screenGui
+    mainFrame.Size = UDim2.new(0.3, 0, 0.4, 0)
+    mainFrame.Position = UDim2.new(0.05, 0, 0.05, 0)
+    mainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+    mainFrame.BackgroundTransparency = 0.5
+    mainFrame.BorderSizePixel = 0
+    mainFrame.ClipsDescendants = true
+    mainFrame.Name = "MainFrame"
+    mainFrame.Draggable = true
+
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.Parent = mainFrame
+    uiCorner.CornerRadius = UDim.new(0, 10)
+
+    titleBar = Instance.new("Frame")
+    titleBar.Parent = mainFrame
+    titleBar.Size = UDim2.new(1, 0, 0.1, 0)
+    titleBar.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+    titleBar.Name = "TitleBar"
+
+    speedButton = Instance.new("TextButton")
+    speedButton.Parent = mainFrame
+    speedButton.Size = UDim2.new(0.45, 0, 0.15, 0)
+    speedButton.Position = UDim2.new(0.025, 0, 0.15, 0)
+    speedButton.Text = "Speed"
+    speedButton.Name = "SpeedButton"
+
+    jumpButton = Instance.new("TextButton")
+    jumpButton.Parent = mainFrame
+    jumpButton.Size = UDim2.new(0.45, 0, 0.15, 0)
+    jumpButton.Position = UDim2.new(0.525, 0, 0.15, 0)
+    jumpButton.Text = "Jump"
+    jumpButton.Name = "JumpButton"
+
+    espButton = Instance.new("TextButton")
+    espButton.Parent = mainFrame
+    espButton.Size = UDim2.new(0.45, 0, 0.15, 0)
+    espButton.Position = UDim2.new(0.025, 0, 0.35, 0)
+    espButton.Text = "ESP"
+    espButton.Name = "ESPButton"
+
+    fallButton = Instance.new("TextButton")
+    fallButton.Parent = mainFrame
+    fallButton.Size = UDim2.new(0.45, 0, 0.15, 0)
+    fallButton.Position = UDim2.new(0.525, 0, 0.35, 0)
+    fallButton.Text = "Fall"
+    fallButton.Name = "FallButton"
+
+    speedTextBox = Instance.new("TextBox")
+    speedTextBox.Parent = mainFrame
+    speedTextBox.Size = UDim2.new(0.45, 0, 0.1, 0)
+    speedTextBox.Position = UDim2.new(0.025, 0, 0.05, 0)
+    speedTextBox.PlaceholderText = "Speed"
+    speedTextBox.Name = "SpeedTextBox"
+
+    jumpTextBox = Instance.new("TextBox")
+    jumpTextBox.Parent = mainFrame
+    jumpTextBox.Size = UDim2.new(0.45, 0, 0.1, 0)
+    jumpTextBox.Position = UDim2.new(0.525, 0, 0.05, 0)
+    jumpTextBox.PlaceholderText = "Jump"
+    jumpTextBox.Name = "JumpTextBox"
+
+    infoButton = Instance.new("TextButton")  -- Create the info button
+    infoButton.Parent = mainFrame
+    infoButton.Size = UDim2.new(0.2, 0, 0.1, 0)  -- Small size
+    infoButton.Position = UDim2.new(0.8, 0, 0.87, 0)  -- Bottom right corner
+    infoButton.Text = "Info"
+    infoButton.Name = "InfoButton"
+
+    -- Create the Info Panel UI
+    infoPanel = Instance.new("Frame")
+    infoPanel.Parent = screenGui
+    infoPanel.Size = UDim2.new(0.4, 0, 0.3, 0)
+    infoPanel.Position = UDim2.new(0.3, 0, 0.3, 0)
+    infoPanel.BackgroundColor3 = Color3.new(0, 0, 0)
+    infoPanel.BackgroundTransparency = 0.5
+    infoPanel.BorderSizePixel = 0
+    infoPanel.ClipsDescendants = true
+    infoPanel.Visible = false  -- Hidden by default
+    infoPanel.Name = "InfoPanel"
+
+    local infoPanelUICorner = Instance.new("UICorner")
+    infoPanelUICorner.Parent = infoPanel
+    infoPanelUICorner.CornerRadius = UDim.new(0, 10)
+
+    infoPanelCloseButton = Instance.new("TextButton")
+    infoPanelCloseButton.Parent = infoPanel
+    infoPanelCloseButton.Size = UDim2.new(0.1, 0, 0.1, 0)
+    infoPanelCloseButton.Position = UDim2.new(0.9, 0, 0, 0)
+    infoPanelCloseButton.Text = "X"
+    infoPanelCloseButton.Name = "InfoPanelCloseButton"
+
+    infoTextLabel = Instance.new("TextLabel")
+    infoTextLabel.Parent = infoPanel
+    infoTextLabel.Size = UDim2.new(0.9, 0, 0.8, 0)
+    infoTextLabel.Position = UDim2.new(0.05, 0, 0.1, 0)
+    infoTextLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+    infoTextLabel.BackgroundTransparency = 1
+    infoTextLabel.TextColor3 = Color3.new(1, 1, 1)
+    infoTextLabel.Text = "SCRIPT BY W1Z4ER. T3L3GA: @w1z4er. Script support: delta/arceus/fluxus/xeno/solara"
+    infoTextLabel.TextXAlignment = Enum.TextXAlignment.Left
+    infoTextLabel.TextYAlignment = Enum.TextYAlignment.Top
+    infoTextLabel.TextWrapped = true
+    infoTextLabel.Name = "InfoTextLabel"
+end
+
+local function updateWalkSpeed(humanoid, newSpeed)
+    local success, message = pcall(function()
+        humanoid.WalkSpeed = tonumber(newSpeed)
+    end)
+
+    if not success then
+        warn("Error setting walk speed: " .. message)
+        speedTextBox.Text = tostring(humanoid.WalkSpeed)
+    end
+end
+
+local function updateJumpPower(humanoid, newJumpPower)
+    local success, message = pcall(function()
+        humanoid.JumpPower = tonumber(newJumpPower)
+    end)
+
+    if not success then
+        warn("Error setting jump power: " .. message)
+        jumpTextBox.Text = tostring(humanoid.JumpPower)
+    end
+end
+
+local function createNameBillboard(player)
+    if player and player.Character and player.Character:FindFirstChild("Head") then
+        local billboardGui = Instance.new("BillboardGui")
+        billboardGui.Parent = player.Character.Head
+        billboardGui.Size = UDim2.new(3, 0, 0.5, 0)
+        billboardGui.StudsOffsetWorldSpace = Vector3.new(0, 2, 0)
+        billboardGui.AlwaysOnTop = true
+        billboardGui.Name = "NameBillboard"
+
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Parent = billboardGui
+        textLabel.Text = player.Name
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+        textLabel.BackgroundTransparency = 0.5
+        textLabel.TextColor3 = Color3.new(1, 1, 1)
+        textLabel.TextScaled = true
+        textLabel.TextXAlignment = Enum.TextXAlignment.Center
+        textLabel.TextYAlignment = Enum.TextYAlignment.Center
+    end
+end
+
+local function toggleESP(enabled, humanoid)
+    isEspEnabled = enabled
+    for i, player in pairs(game.Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
+            local highlight = player.Character:FindFirstChild("ESPHighlight")
+            local billboard = player.Character.Head:FindFirstChild("NameBillboard")
+
+            if enabled then
+                if not highlight then
+                    highlight = Instance.new("Highlight")
+                    highlight.Parent = player.Character
+                    highlight.FillColor = Color3.new(0, 1, 0)
+                    highlight.OutlineColor = Color3.new(0, 1, 0)
+                    highlight.Name = "ESPHighlight"
+                end
+                if not billboard then
+                    createNameBillboard(player)
+                end
+            else
+                if highlight then
+                    highlight:Destroy()
+                end
+                if billboard then
+                    billboard:Destroy()
+                end
+            end
+        end
+    end
+end
+
+local function toggleFly(enabled, humanoid)
+    isFlying = enabled
+    humanoid.PlatformStand = not enabled
+end
+
+local function connectEvents(humanoid)
+    speedButton.MouseButton1Click:Connect(function()
+        updateWalkSpeed(humanoid, speedTextBox.Text)
+    end)
+
+    jumpButton.MouseButton1Click:Connect(function()
+        updateJumpPower(humanoid, jumpTextBox.Text)
+    end)
+
+    espButton.MouseButton1Click:Connect(function()
+        toggleESP(not isEspEnabled, humanoid)
+    end)
+
+    fallButton.MouseButton1Click:Connect(function()
+        toggleFly(not isFlying, humanoid)
+    end)
+
+    speedTextBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            updateWalkSpeed(humanoid, speedTextBox.Text)
+        end
+    end)
+
+    jumpTextBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            updateJumpPower(humanoid, jumpTextBox.Text)
+        end
+    end)
+
+    infoButton.MouseButton1Click:Connect(function()  -- Connect the info button
+        infoPanel.Visible = true
+    end)
+
+    infoPanelCloseButton.MouseButton1Click:Connect(function()  -- Connect the info panel close button
+        infoPanel.Visible = false
+    end)
+
+    -- Initial Setup
+    speedTextBox.Text = tostring(humanoid.WalkSpeed)
+    jumpTextBox.Text = tostring(humanoid.JumpPower)
+end
+
+-- Function to destroy the UI
+local function destroyUI()
+    if screenGui then
+        screenGui:Destroy()
+    end
+end
+
+-- Character Added Event
+local function onCharacterAdded(character)
+    -- Disconnect existing connections (if any)
+    destroyUI()
+
+    -- Get humanoid
+    local humanoid = character:WaitForChild("Humanoid")
+
+    -- Create UI
+    createUI()
+
+    -- Connect Events
+    connectEvents(humanoid)
+end
+
+-- Handle existing character (if any)
+if LocalPlayer.Character then
+    onCharacterAdded(LocalPlayer.Character)
+end
+
+-- Listen for character added event
+LocalPlayer.CharacterAdded:Connect(onCharacterAdded)
+
+-- Function to handle player respawn (alternative method)
+local function onPlayerRemoving(player)
+    if player == LocalPlayer then
+        destroyUI()
+    end
+end
+
+Players.PlayerRemoving:Connect(onPlayerRemoving)
